@@ -24,6 +24,7 @@ public class Classroom {
     private Integer id;
     private String name;
     private Integer availability;
+    private Integer capacity;
     private String equipment;
     private String building;
     private String campus;

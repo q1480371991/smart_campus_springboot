@@ -16,10 +16,7 @@ import java.text.ParseException;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author : Lin
@@ -63,7 +60,7 @@ public class userController {
             return R.ok(user);
         }
 
-        return R.fail(null);
+        return R.fail("密码错误或账号不存在");
     };
 
     //修改密码
@@ -90,7 +87,7 @@ public class userController {
 
     //课程选课：选择管理员发布的课程
     @PostMapping("/selectCourse")
-    public R selectClass(@RequestBody Map<String,String> data){
+    public R selectCourse(@RequestBody Map<String,String> data){
         String courseid = data.get("courseid");
         String userid = data.get("userid");
         Course_Selection course_selection = new Course_Selection(null, Integer.valueOf(courseid), Integer.valueOf(userid));
@@ -115,7 +112,7 @@ public class userController {
         List<Course_Selection> course_selections = course_selection_mapper.selectList(lqw1);
         ArrayList<Integer> courseids = new ArrayList<>();
         for (Course_Selection course_selection : course_selections) {
-            courseids.add(course_selection.getClassid());
+            courseids.add(course_selection.getCourseid());
         }
         LambdaQueryWrapper<Course> lqw2 = new LambdaQueryWrapper<Course>();
         lqw2.in(Course::getId,courseids);
@@ -231,7 +228,17 @@ public class userController {
         LambdaQueryWrapper<Reservation> lqw = new LambdaQueryWrapper<Reservation>();
         lqw.eq(Reservation::getStatus,0);
         List<Reservation> unchecked_reservations = reservationmapper.selectList(lqw);
-        return R.ok(unchecked_reservations);
+
+        ArrayList<HashMap<String, Object>> res = new ArrayList<>();
+        for (Reservation unchecked_reservation : unchecked_reservations) {
+            HashMap<String, Object> map = new HashMap<>();
+            Classroom classroom = classroommapper.selectById(unchecked_reservation.getClassroomId());
+            map.put("unchecked_reservation",unchecked_reservation);
+            map.put("classroom",classroom);
+            res.add(map);
+
+        }
+        return R.ok(res);
     };
 
     //返回所有学生的已经处理的教室预约申请
@@ -241,19 +248,27 @@ public class userController {
         lqw.ne(Reservation::getStatus,0);
         List<Reservation> checked_reservations = reservationmapper.selectList(lqw);
 
-        return R.ok(checked_reservations);
+        ArrayList<HashMap<String, Object>> res = new ArrayList<>();
+        for (Reservation checked_reservation : checked_reservations) {
+            HashMap<String, Object> map = new HashMap<>();
+            Classroom classroom = classroommapper.selectById(checked_reservation.getClassroomId());
+            map.put("checked_reservation",checked_reservation);
+            map.put("classroom",classroom);
+            res.add(map);
+
+        }
+        return R.ok(res);
     };
 
-    //通过或拒绝学生的教室预约申请
+//    通过或拒绝学生的教室预约申请
     @PostMapping("/judgeOrder")
     public R judgeOrder(@RequestBody Map<String,Object> data){
         Integer reservationid = (Integer) data.get("reservationid");
         Integer status = (Integer) data.get("status");
 
 
-        LambdaQueryWrapper<Reservation> lqw1 = new LambdaQueryWrapper<Reservation>();
-        lqw1.eq(Reservation::getId,reservationid);
-        Reservation reservation = reservationmapper.selectOne(lqw1);
+
+        Reservation reservation = reservationmapper.selectById(reservationid);
         if (status==1){
             //同意
             reservation.setStatus(status);
@@ -264,7 +279,7 @@ public class userController {
         }
         int i = reservationmapper.updateById(reservation);
         //把教室预约改为不可预约
-        Integer classroom_id = reservation.getClassroom_id();
+        Integer classroom_id = reservation.getClassroomId();
         Classroom classroom = classroommapper.selectById(classroom_id);
         classroom.setAvailability(0);
         return R.ok(i);

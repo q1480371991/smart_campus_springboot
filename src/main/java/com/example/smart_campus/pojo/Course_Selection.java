@@ -20,10 +20,10 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@TableName("class_selection")
+@TableName("course_selection")
 public class Course_Selection {
     @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
-    private Integer classid;
+    private Integer courseid;
     private Integer userid;
 }

@@ -2,7 +2,9 @@ package com.example.smart_campus;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.example.smart_campus.mapper.classroomMapper;
+import com.example.smart_campus.mapper.reservationMapper;
 import com.example.smart_campus.pojo.Classroom;
+import com.example.smart_campus.pojo.Reservation;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -11,6 +13,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author : Lin
@@ -27,6 +30,8 @@ public class test {
 
     @Autowired
     private classroomMapper classroommapper;
+    @Autowired
+    private reservationMapper reservationmapper;
 
     @Test
     public void test1(){
@@ -46,14 +51,10 @@ public class test {
     }
     @Test
     public void test2(){
-        // 获取当前时间
-        LocalDateTime currentTime = LocalDateTime.now();
+//        Map<String, Object> stringObjectMap = reservationmapper.selectReservationByid(1);
+//        System.out.println(stringObjectMap);
+        Reservation reservation = reservationmapper.selectById(1);
+        System.out.println(reservation);
 
-        // 定义时间格式
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-
-        // 格式化当前时间为字符串
-        String time = currentTime.format(formatter);
-        System.out.println(time);
     }
 }

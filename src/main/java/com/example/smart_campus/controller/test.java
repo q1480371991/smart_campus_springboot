@@ -19,8 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class test {
     @RequestMapping(value = "test",method = RequestMethod.POST)
-    public String test(@RequestBody Classroom classroom){
-        System.out.println(classroom);
+    public String test(){
+        System.out.println("111");
         return "111";
     }
 }
